@@ -4,48 +4,70 @@ using System.Threading.Tasks;
 
 namespace ToDoApp.Controllers
 {
+    public record TaskItem(string Name, bool IsCompleted);
+
     public class TasksController : Controller
     {
-        private static readonly List<string> _tasks = new List<string>
+        private static readonly List<TaskItem> _tasks = new List<TaskItem>
         {
-            "Buy products",
-            "Call friend"
+            new TaskItem("Buy groceries", false),
+            new TaskItem("Call a friend", true)
         };
 
         [HttpGet]
-        public async Task Index()
+        public async Task Index(string status = "all")
         {
             Response.ContentType = "text/html;charset=utf-8";
-            StringBuilder html = new StringBuilder("<h2>Task list</h2>");
-            html.Append("<ul>");
-            foreach (var task in _tasks)
+            StringBuilder html = new StringBuilder("<h2>Task List</h2>");
+
+            var filteredTasks = status.ToLower() switch
             {
-                html.Append($"<li>{task}</li>");
+                "completed" => _tasks.Where(t => t.IsCompleted).ToList(),
+                "notcompleted" => _tasks.Where(t => !t.IsCompleted).ToList(),
+                _ => _tasks
+            };
+
+            html.Append("<ul>");
+            foreach (var task in filteredTasks)
+            {
+                html.Append($"<li>{task.Name} ({(task.IsCompleted ? "Completed" : "Not Completed")})</li>");
             }
             html.Append("</ul>");
-            html.Append("<form method='post' action='/Tasks/Add'>");
-            html.Append("<input type='text' name='taskName' placeholder='Write task' />");
+
+            html.Append("<h3>Filter Tasks</h3>");
+            html.Append("<form method='get' action='/Tasks/Index'>");
+            html.Append("<select name='status'>");
+            html.Append("<option value='all'>All</option>");
+            html.Append("<option value='completed'>Completed</option>");
+            html.Append("<option value='notcompleted'>Not Completed</option>");
+            html.Append("</select>");
+            html.Append("<button type='submit'>Apply</button>");
+            html.Append("</form>");
+
+            html.Append("<h3>Add Task</h3>");
+            html.Append("<form method='get' action='/Tasks/Add'>");
+            html.Append("<input type='text' name='task.Name' placeholder='Enter task name' />");
+            html.Append("<input type='checkbox' name='task.IsCompleted' value='true' /> Completed");
             html.Append("<button type='submit'>Add</button>");
             html.Append("</form>");
 
             await Response.WriteAsync(html.ToString());
         }
 
-        [HttpPost]
+        [HttpGet]
         [ActionName("Add")]
-        public async Task AddTask()
+        public async Task AddTask(TaskItem task)
         {
             Response.ContentType = "text/html;charset=utf-8";
-            string ?taskName = Request.Form["taskName"];
-            if (!string.IsNullOrEmpty(taskName))
+            if (!string.IsNullOrEmpty(task.Name))
             {
-                _tasks.Add(taskName);
-                await Response.WriteAsync("<h2>Task has been added</h2><a href='/Tasks/Index'>Return to Task list</a>");
+                _tasks.Add(task);
+                await Response.WriteAsync($"<h2>Task '{task.Name}' added</h2><a href='/Tasks/Index'>Return to Task List</a>");
             }
             else
             {
                 Response.StatusCode = 400; 
-                await Response.WriteAsync("<h2>Error: empty name</h2><a href='/Tasks/Index'>Return to Task list</a>");
+                await Response.WriteAsync("<h2>Error: Task name is required</h2><a href='/Tasks/Index'>Return to Task List</a>");
             }
         }
     }
