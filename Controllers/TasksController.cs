@@ -15,9 +15,8 @@ namespace ToDoApp.Controllers
         };
 
         [HttpGet]
-        public async Task Index(string status = "all")
+        public IActionResult Index(string status = "all")
         {
-            Response.ContentType = "text/html;charset=utf-8";
             StringBuilder html = new StringBuilder("<h2>Task List</h2>");
 
             var filteredTasks = status.ToLower() switch
@@ -53,15 +52,13 @@ namespace ToDoApp.Controllers
             html.Append("<button type='submit'>Add</button>");
             html.Append("</form>");
 
-            await Response.WriteAsync(html.ToString());
+            return new HtmlResult(html.ToString());
         }
 
         [HttpPost]
         [ActionName("Add")]
-        public async Task AddTask(TaskItem task)
+        public IActionResult AddTask(TaskItem task)
         {
-            Response.ContentType = "text/html;charset=utf-8";
-
             string? taskName = Request.Form["task.Name"];
             bool isCompleted = Request.Form["task.IsCompleted"] == "true";
 
@@ -71,12 +68,16 @@ namespace ToDoApp.Controllers
                     ? task 
                     : new TaskItem(taskName ?? string.Empty, isCompleted);
                 _tasks.Add(newTask);
-                await Response.WriteAsync($"<h2>Task '{newTask.Name}' added</h2><a href='/Tasks/Index'>Return to Task List</a>");
+                return new RedirectToActionResult("Index", "Tasks", null);
             }
             else
             {
-                Response.StatusCode = 400; 
-                await Response.WriteAsync("<h2>Error: Task name is required</h2><a href='/Tasks/Index'>Return to Task List</a>");
+                return new ContentResult
+                {
+                    StatusCode = 400, 
+                    ContentType = "text/html;charset=utf-8",
+                    Content = "<h2>Error: Task name is required</h2><a href='/Tasks/Index'>Return to Task List</a>"
+                };
             }
         }
     }
