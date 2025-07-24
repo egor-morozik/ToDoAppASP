@@ -24,7 +24,7 @@ namespace ToDoApp.Controllers
             {
                 "completed" => _tasks.Where(t => t.IsCompleted).ToList(),
                 "notcompleted" => _tasks.Where(t => !t.IsCompleted).ToList(),
-                _ => _tasks
+                _ => _tasks 
             };
 
             html.Append("<ul>");
@@ -45,24 +45,33 @@ namespace ToDoApp.Controllers
             html.Append("</form>");
 
             html.Append("<h3>Add Task</h3>");
-            html.Append("<form method='get' action='/Tasks/Add'>");
-            html.Append("<input type='text' name='task.Name' placeholder='Enter task name' />");
-            html.Append("<input type='checkbox' name='task.IsCompleted' value='true' /> Completed");
+            html.Append("<form method='post' action='/Tasks/Add'>");
+            html.Append("<label>Task Name:</label><br />");
+            html.Append("<input name='task.Name' placeholder='Enter task name' /><br />");
+            html.Append("<label>Completed:</label><br />");
+            html.Append("<input type='checkbox' name='task.IsCompleted' value='true' /><br />");
             html.Append("<button type='submit'>Add</button>");
             html.Append("</form>");
 
             await Response.WriteAsync(html.ToString());
         }
 
-        [HttpGet]
+        [HttpPost]
         [ActionName("Add")]
         public async Task AddTask(TaskItem task)
         {
             Response.ContentType = "text/html;charset=utf-8";
-            if (!string.IsNullOrEmpty(task.Name))
+
+            string? taskName = Request.Form["task.Name"];
+            bool isCompleted = Request.Form["task.IsCompleted"] == "true";
+
+            if (!string.IsNullOrEmpty(task.Name) || !string.IsNullOrEmpty(taskName))
             {
-                _tasks.Add(task);
-                await Response.WriteAsync($"<h2>Task '{task.Name}' added</h2><a href='/Tasks/Index'>Return to Task List</a>");
+                var newTask = !string.IsNullOrEmpty(task.Name) 
+                    ? task 
+                    : new TaskItem(taskName ?? string.Empty, isCompleted);
+                _tasks.Add(newTask);
+                await Response.WriteAsync($"<h2>Task '{newTask.Name}' added</h2><a href='/Tasks/Index'>Return to Task List</a>");
             }
             else
             {
