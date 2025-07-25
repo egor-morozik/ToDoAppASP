@@ -4,21 +4,29 @@ using System.Text.Json;
 
 namespace ToDoApp.Controllers
 {
-    public record TaskItem(string Name, bool IsCompleted);
+    public record TaskItem(string Name, bool IsCompleted, string CreatedAt);
     public record Error(string Message);
 
     public class TasksController : Controller
     {
+        private readonly ITimeService _timeService;
+
         private static readonly List<TaskItem> _tasks = new List<TaskItem>
         {
-            new TaskItem("Buy groceries", false),
-            new TaskItem("Call a friend", true)
+            new TaskItem("Buy groceries", false, "12:00:00"),
+            new TaskItem("Call a friend", true, "12:01:00")
         };
+
+        public TasksController(ITimeService timeService)
+        {
+            _timeService = timeService;
+        }
 
         [HttpGet]
         public IActionResult Index(string status = "all")
         {
             StringBuilder html = new StringBuilder("<h2>Task List</h2>");
+
 
             var filteredTasks = status.ToLower() switch
             {
@@ -30,7 +38,7 @@ namespace ToDoApp.Controllers
             html.Append("<ul>");
             foreach (var task in filteredTasks)
             {
-                html.Append($"<li>{task.Name} ({(task.IsCompleted ? "Completed" : "Not Completed")})</li>");
+                html.Append($"<li>{task.Name} ({(task.IsCompleted ? "Completed" : "Not Completed")}), Created At: {task.CreatedAt}</li>");
             }
             html.Append("</ul>");
 
@@ -91,14 +99,14 @@ namespace ToDoApp.Controllers
         [ActionName("Add")]
         public IActionResult AddTask(TaskItem task)
         {
-            string? taskName = Request.Form["task.Name"];
+            string ?taskName = Request.Form["task.Name"];
             bool isCompleted = Request.Form["task.IsCompleted"] == "true";
 
             if (!string.IsNullOrEmpty(task.Name) || !string.IsNullOrEmpty(taskName))
             {
                 var newTask = !string.IsNullOrEmpty(task.Name) 
-                    ? task 
-                    : new TaskItem(taskName ?? string.Empty, isCompleted);
+                    ? new TaskItem(task.Name, task.IsCompleted, _timeService.Time)
+                    : new TaskItem(taskName ?? string.Empty, isCompleted, _timeService.Time);
                 _tasks.Add(newTask);
                 return RedirectToAction("Index", "Tasks", new { status = newTask.IsCompleted ? "completed" : "notcompleted" });
             }
@@ -155,7 +163,7 @@ namespace ToDoApp.Controllers
             StringBuilder fileContent = new StringBuilder();
             foreach (var task in filteredTasks)
             {
-                fileContent.AppendLine($"Name: {task.Name}, Status: {(task.IsCompleted ? "Completed" : "Not Completed")}");
+                fileContent.AppendLine($"Name: {task.Name}, Status: {(task.IsCompleted ? "Completed" : "Not Completed")}, Created At: {task.CreatedAt}");
             }
 
             byte[] fileBytes = Encoding.UTF8.GetBytes(fileContent.ToString());
