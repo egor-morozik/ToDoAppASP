@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Text;
-using System.Threading.Tasks;
+using System.Text.Json;
 
 namespace ToDoApp.Controllers
 {
@@ -52,7 +52,22 @@ namespace ToDoApp.Controllers
             html.Append("<button type='submit'>Add</button>");
             html.Append("</form>");
 
-            return new HtmlResult(html.ToString());
+            html.Append("<h3>Get Tasks (JSON)</h3>");
+            html.Append("<a href='/Tasks/GetTasks'>View tasks in JSON</a>");
+
+            html.Append("<h3>Redirect Demo</h3>");
+            html.Append("<a href='/Tasks/RedirectToInfo'>Go to Info</a>");
+
+            string fullHtml = $@"<!DOCTYPE html>
+                                <html>
+                                    <head>
+                                        <title>ToDoApp</title>
+                                        <meta charset=utf-8 />
+                                    </head>
+                                    <body>{html.ToString()}</body>
+                                </html>";
+
+            return Content(fullHtml, "text/html;charset=utf-8");
         }
 
         [HttpPost]
@@ -68,7 +83,7 @@ namespace ToDoApp.Controllers
                     ? task 
                     : new TaskItem(taskName ?? string.Empty, isCompleted);
                 _tasks.Add(newTask);
-                return new RedirectToActionResult("Index", "Tasks", null);
+                return RedirectToAction("Index", "Tasks", new { status = newTask.IsCompleted ? "completed" : "notcompleted" });
             }
             else
             {
@@ -79,6 +94,23 @@ namespace ToDoApp.Controllers
                     Content = "<h2>Error: Task name is required</h2><a href='/Tasks/Index'>Return to Task List</a>"
                 };
             }
+        }
+
+        [HttpGet]
+        public IActionResult GetTasks()
+        {
+            var jsonOptions = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true,
+                WriteIndented = true
+            };
+            return Json(_tasks, jsonOptions);
+        }
+
+        [HttpGet]
+        public IActionResult RedirectToInfo()
+        {
+            return RedirectToRoute("default", new { controller = "Tasks", action = "Index", status = "all" });
         }
     }
 }
