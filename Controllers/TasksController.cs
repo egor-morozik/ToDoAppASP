@@ -7,7 +7,7 @@ namespace ToDoApp.Controllers
     public record TaskItem(string Name, bool IsCompleted, string CreatedAt);
     public record Error(string Message);
 
-    public class TasksController : Controller
+    public class TasksController : LogBaseController
     {
         private readonly ITimeService _timeService;
 
@@ -26,7 +26,6 @@ namespace ToDoApp.Controllers
         public IActionResult Index(string status = "all")
         {
             StringBuilder html = new StringBuilder("<h2>Task List</h2>");
-
 
             var filteredTasks = status.ToLower() switch
             {
