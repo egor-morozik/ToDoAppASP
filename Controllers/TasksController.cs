@@ -65,14 +65,24 @@ namespace ToDoApp.Controllers
             html.Append("<button type='submit'>Find</button>");
             html.Append("</form>");
 
+            html.Append("<h3>Download Tasks</h3>");
+            html.Append("<form method='get' action='/Tasks/DownloadTasks'>");
+            html.Append("<select name='status'>");
+            html.Append("<option value='all'>All</option>");
+            html.Append("<option value='completed'>Completed</option>");
+            html.Append("<option value='notcompleted'>Not Completed</option>");
+            html.Append("</select>");
+            html.Append("<button type='submit'>Download</button>");
+            html.Append("</form>");
+
             string fullHtml = $@"<!DOCTYPE html>
-                                <html>
-                                    <head>
-                                        <title>ToDoApp</title>
-                                        <meta charset=utf-8 />
-                                    </head>
-                                    <body>{html.ToString()}</body>
-                                </html>";
+                <html>
+                    <head>
+                        <title>ToDoApp</title>
+                        <meta charset=utf-8 />
+                    </head>
+                    <body>{html.ToString()}</body>
+                </html>";
 
             return Content(fullHtml, "text/html;charset=utf-8");
         }
@@ -81,18 +91,13 @@ namespace ToDoApp.Controllers
         [ActionName("Add")]
         public IActionResult AddTask(TaskItem task)
         {
-            string ?taskName = Request.Form["task.Name"];
+            string? taskName = Request.Form["task.Name"];
             bool isCompleted = Request.Form["task.IsCompleted"] == "true";
 
             if (!string.IsNullOrEmpty(task.Name) || !string.IsNullOrEmpty(taskName))
             {
-                if (string.IsNullOrEmpty(task.Name) && string.IsNullOrEmpty(taskName))
-                {
-                    return BadRequest(new Error("Task name is required"));
-                }
-
-                var newTask = !string.IsNullOrEmpty(task.Name)
-                    ? task
+                var newTask = !string.IsNullOrEmpty(task.Name) 
+                    ? task 
                     : new TaskItem(taskName ?? string.Empty, isCompleted);
                 _tasks.Add(newTask);
                 return RedirectToAction("Index", "Tasks", new { status = newTask.IsCompleted ? "completed" : "notcompleted" });
@@ -110,6 +115,7 @@ namespace ToDoApp.Controllers
             {
                 return Unauthorized(new Error("You are not authorized to access tasks"));
             }
+
             return Ok(_tasks);
         }
 
@@ -134,6 +140,29 @@ namespace ToDoApp.Controllers
         public IActionResult RedirectToInfo()
         {
             return RedirectToRoute("default", new { controller = "Tasks", action = "Index", status = "all" });
+        }
+
+        [HttpGet]
+        public IActionResult DownloadTasks(string status = "all")
+        {
+            var filteredTasks = status.ToLower() switch
+            {
+                "completed" => _tasks.Where(t => t.IsCompleted).ToList(),
+                "notcompleted" => _tasks.Where(t => !t.IsCompleted).ToList(),
+                _ => _tasks 
+            };
+
+            StringBuilder fileContent = new StringBuilder();
+            foreach (var task in filteredTasks)
+            {
+                fileContent.AppendLine($"Name: {task.Name}, Status: {(task.IsCompleted ? "Completed" : "Not Completed")}");
+            }
+
+            byte[] fileBytes = Encoding.UTF8.GetBytes(fileContent.ToString());
+            string fileName = $"tasks_{status}.txt";
+            string contentType = "text/plain";
+
+            return File(fileBytes, contentType, fileName);
         }
     }
 }
