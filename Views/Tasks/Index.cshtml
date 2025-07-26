@@ -1,59 +1,65 @@
 @using ToDoApp.Controllers
 
-<!DOCTYPE html>
-<html>
-<head>
-    <title>ToDoApp</title>
-    <meta charset="utf-8" />
-</head>
-<body>
-    <h2>Task List</h2>
-    <ul>
-        @foreach (var task in (List<TaskItem>)ViewData["Tasks"])
+@{
+    ViewBag.Title = "Task List";
+}
+
+<h3>Task List</h3>
+<ul>
+    @if (ViewData["Tasks"] is List<TaskItem> tasks && tasks != null)
+    {
+        foreach (var task in tasks)
         {
             <li>@task.Name (@(task.IsCompleted ? "Completed" : "Not Completed")), Created At: @task.CreatedAt</li>
         }
-    </ul>
+    }
+    else
+    {
+        <li>No tasks found.</li>
+    }
+</ul>
 
-    <h3>Filter Tasks</h3>
-    <form method="get" action="/Tasks/Index">
-        <select name="status">
-            <option value="all" selected="@(ViewData["Status"]?.ToString() == "all" ? "selected" : null)">All</option>
-            <option value="completed" selected="@(ViewData["Status"]?.ToString() == "completed" ? "selected" : null)">Completed</option>
-            <option value="notcompleted" selected="@(ViewData["Status"]?.ToString() == "notcompleted" ? "selected" : null)">Not Completed</option>
-        </select>
-        <button type="submit">Apply</button>
-    </form>
+<h3>Filter Tasks</h3>
+<form method="get" action="/Tasks/Index">
+    <select name="status">
+        <option value="all" selected="@(ViewData["Status"]?.ToString() == "all" ? "selected" : null)">All</option>
+        <option value="completed" selected="@(ViewData["Status"]?.ToString() == "completed" ? "selected" : null)">Completed</option>
+        <option value="notcompleted" selected="@(ViewData["Status"]?.ToString() == "notcompleted" ? "selected" : null)">Not Completed</option>
+    </select>
+    <button type="submit">Apply</button>
+</form>
 
-    <h3>Add Task</h3>
-    <form method="post" action="/Tasks/Add">
-        <label>Task Name:</label><br />
-        <input name="task.Name" placeholder="Enter task name" /><br />
-        <label>Completed:</label><br />
-        <input type="checkbox" name="task.IsCompleted" value="true" /><br />
-        <button type="submit">Add</button>
-    </form>
+<h3>Add Task</h3>
+<form method="post" action="/Tasks/Add">
+    <label>Task Name:</label><br />
+    <input name="task.Name" placeholder="Enter task name" /><br />
+    <label>Completed:</label><br />
+    <input type="checkbox" name="task.IsCompleted" value="true" /><br />
+    <button type="submit">Add</button>
+</form>
 
-    <h3>Get Tasks (JSON)</h3>
-    <a href="/Tasks/GetTasks">View tasks in JSON</a>
+<h3>Get Tasks (JSON)</h3>
+<a href="/Tasks/GetTasks">View tasks in JSON</a>
 
-    <h3>Redirect Demo</h3>
-    <a href="/Tasks/RedirectToInfo">Go to Info</a>
+<h3>Redirect Demo</h3>
+<a href="/Tasks/RedirectToInfo">Go to Info</a>
 
-    <h3>Find Task</h3>
-    <form method="get" action="/Tasks/FindTask">
-        <input name="name" placeholder="Enter task name" /><br />
-        <button type="submit">Find</button>
-    </form>
+<h3>Find Task</h3>
+<form method="get" action="/Tasks/FindTask">
+    <input name="name" placeholder="Enter task name" /><br />
+    <button type="submit">Find</button>
+</form>
 
-    <h3>Download Tasks</h3>
-    <form method="get" action="/Tasks/DownloadTasks">
-        <select name="status">
-            <option value="all" selected="@(ViewData["Status"]?.ToString() == "all" ? "selected" : null)">All</option>
-            <option value="completed" selected="@(ViewData["Status"]?.ToString() == "completed" ? "selected" : null)">Completed</option>
-            <option value="notcompleted" selected="@(ViewData["Status"]?.ToString() == "notcompleted" ? "selected" : null)">Not Completed</option>
-        </select>
-        <button type="submit">Download</button>
-    </form>
-</body>
-</html>
+<h3>Download Tasks</h3>
+<form method="get" action="/Tasks/DownloadTasks">
+    <select name="status">
+        <option value="all" selected="@(ViewData["Status"]?.ToString() == "all" ? "selected" : null)">All</option>
+        <option value="completed" selected="@(ViewData["Status"]?.ToString() == "completed" ? "selected" : null)">Completed</option>
+        <option value="notcompleted" selected="@(ViewData["Status"]?.ToString() == "notcompleted" ? "selected" : null)">Not Completed</option>
+    </select>
+    <button type="submit">Download</button>
+</form>
+
+@section Footer {
+    Copyright © ToDoApp, @DateTime.Now.Year. All rights reserved
+}
