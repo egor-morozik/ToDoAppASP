@@ -25,8 +25,6 @@ namespace ToDoApp.Controllers
         [HttpGet]
         public IActionResult Index(string status = "all")
         {
-            StringBuilder html = new StringBuilder("<h2>Task List</h2>");
-
             var filteredTasks = status.ToLower() switch
             {
                 "completed" => _tasks.Where(t => t.IsCompleted).ToList(),
@@ -34,64 +32,9 @@ namespace ToDoApp.Controllers
                 _ => _tasks 
             };
 
-            html.Append("<ul>");
-            foreach (var task in filteredTasks)
-            {
-                html.Append($"<li>{task.Name} ({(task.IsCompleted ? "Completed" : "Not Completed")}), Created At: {task.CreatedAt}</li>");
-            }
-            html.Append("</ul>");
-
-            html.Append("<h3>Filter Tasks</h3>");
-            html.Append("<form method='get' action='/Tasks/Index'>");
-            html.Append("<select name='status'>");
-            html.Append("<option value='all'>All</option>");
-            html.Append("<option value='completed'>Completed</option>");
-            html.Append("<option value='notcompleted'>Not Completed</option>");
-            html.Append("</select>");
-            html.Append("<button type='submit'>Apply</button>");
-            html.Append("</form>");
-
-            html.Append("<h3>Add Task</h3>");
-            html.Append("<form method='post' action='/Tasks/Add'>");
-            html.Append("<label>Task Name:</label><br />");
-            html.Append("<input name='task.Name' placeholder='Enter task name' /><br />");
-            html.Append("<label>Completed:</label><br />");
-            html.Append("<input type='checkbox' name='task.IsCompleted' value='true' /><br />");
-            html.Append("<button type='submit'>Add</button>");
-            html.Append("</form>");
-
-            html.Append("<h3>Get Tasks (JSON)</h3>");
-            html.Append("<a href='/Tasks/GetTasks'>View tasks in JSON</a>");
-
-            html.Append("<h3>Redirect Demo</h3>");
-            html.Append("<a href='/Tasks/RedirectToInfo'>Go to Info</a>");
-
-            html.Append("<h3>Find Task</h3>");
-            html.Append("<form method='get' action='/Tasks/FindTask'>");
-            html.Append("<input name='name' placeholder='Enter task name' /><br />");
-            html.Append("<button type='submit'>Find</button>");
-            html.Append("</form>");
-
-            html.Append("<h3>Download Tasks</h3>");
-            html.Append("<form method='get' action='/Tasks/DownloadTasks'>");
-            html.Append("<select name='status'>");
-            html.Append("<option value='all'>All</option>");
-            html.Append("<option value='completed'>Completed</option>");
-            html.Append("<option value='notcompleted'>Not Completed</option>");
-            html.Append("</select>");
-            html.Append("<button type='submit'>Download</button>");
-            html.Append("</form>");
-
-            string fullHtml = $@"<!DOCTYPE html>
-                <html>
-                    <head>
-                        <title>ToDoApp</title>
-                        <meta charset=utf-8 />
-                    </head>
-                    <body>{html.ToString()}</body>
-                </html>";
-
-            return Content(fullHtml, "text/html;charset=utf-8");
+            ViewData["Tasks"] = filteredTasks;
+            ViewData["Status"] = status;
+            return View("Index");
         }
 
         [HttpPost]
@@ -156,7 +99,7 @@ namespace ToDoApp.Controllers
             {
                 "completed" => _tasks.Where(t => t.IsCompleted).ToList(),
                 "notcompleted" => _tasks.Where(t => !t.IsCompleted).ToList(),
-                _ => _tasks 
+                _ => _tasks
             };
 
             StringBuilder fileContent = new StringBuilder();
