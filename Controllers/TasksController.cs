@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Text;
 using System.Text.Json;
 using ToDoApp.Models;
+using ToDoApp.ViewModels;
 
 namespace ToDoApp.Controllers
 {
@@ -13,8 +14,8 @@ namespace ToDoApp.Controllers
 
         private static readonly List<TaskItem> _tasks = new List<TaskItem>
         {
-            new TaskItem("Buy groceries", false, "12:00:00"),
-            new TaskItem("Call a friend", true, "12:01:00")
+            new TaskItem("Buy groceries", false, new DateTime(2025, 7, 28, 12, 0, 0)),
+            new TaskItem("Call a friend", true, new DateTime(2025, 7, 27, 12, 1, 0))
         };
 
         public TasksController(ITimeService timeService)
@@ -23,17 +24,35 @@ namespace ToDoApp.Controllers
         }
 
         [HttpGet]
-        public IActionResult Index(string status = "all")
+        public IActionResult Index(string status = "all", string timeFilter = "all")
         {
-            var filteredTasks = status.ToLower() switch
+            var filteredTasks = _tasks.AsEnumerable();
+            if (status.ToLower() != "all")
             {
-                "completed" => _tasks.Where(t => t.IsCompleted).ToList(),
-                "notcompleted" => _tasks.Where(t => !t.IsCompleted).ToList(),
-                _ => _tasks 
+                filteredTasks = status.ToLower() == "completed" 
+                    ? filteredTasks.Where(t => t.IsCompleted) 
+                    : filteredTasks.Where(t => !t.IsCompleted);
+            }
+            if (timeFilter.ToLower() == "today")
+            {
+                filteredTasks = filteredTasks.Where(t => t.CreatedDateTime.Date == DateTime.Today);
+            }
+
+            var timeFilters = new List<TimeFilterModel>
+            {
+                new TimeFilterModel("all", "All"),
+                new TimeFilterModel("today", "Today")
             };
 
-            ViewBag.Status = status;
-            return View("Index", filteredTasks);
+            var viewModel = new IndexViewModel
+            {
+                Tasks = filteredTasks,
+                TimeFilters = timeFilters,
+                Status = status,
+                TimeFilter = timeFilter
+            };
+
+            return View("Index", viewModel);
         }
 
         [HttpPost]
@@ -46,10 +65,10 @@ namespace ToDoApp.Controllers
             if (!string.IsNullOrEmpty(task.Name) || !string.IsNullOrEmpty(taskName))
             {
                 var newTask = !string.IsNullOrEmpty(task.Name) 
-                    ? new TaskItem(task.Name, task.IsCompleted, _timeService.Time)
-                    : new TaskItem(taskName ?? string.Empty, isCompleted, _timeService.Time);
+                    ? new TaskItem(task.Name, task.IsCompleted, DateTime.Now)
+                    : new TaskItem(taskName ?? string.Empty, isCompleted, DateTime.Now);
                 _tasks.Add(newTask);
-                return RedirectToAction("Index", "Tasks", new { status = newTask.IsCompleted ? "completed" : "notcompleted" });
+                return RedirectToAction("Index", "Tasks", new { status = newTask.IsCompleted ? "completed" : "notcompleted", timeFilter = "today" });
             }
             else
             {
@@ -88,27 +107,32 @@ namespace ToDoApp.Controllers
         [HttpGet]
         public IActionResult RedirectToInfo()
         {
-            return RedirectToRoute("default", new { controller = "Tasks", action = "Index", status = "all" });
+            return RedirectToRoute("default", new { controller = "Tasks", action = "Index", status = "all", timeFilter = "all" });
         }
 
         [HttpGet]
-        public IActionResult DownloadTasks(string status = "all")
+        public IActionResult DownloadTasks(string status = "all", string timeFilter = "all")
         {
-            var filteredTasks = status.ToLower() switch
+            var filteredTasks = _tasks.AsEnumerable();
+            if (status.ToLower() != "all")
             {
-                "completed" => _tasks.Where(t => t.IsCompleted).ToList(),
-                "notcompleted" => _tasks.Where(t => !t.IsCompleted).ToList(),
-                _ => _tasks 
-            };
+                filteredTasks = status.ToLower() == "completed" 
+                    ? filteredTasks.Where(t => t.IsCompleted) 
+                    : filteredTasks.Where(t => !t.IsCompleted);
+            }
+            if (timeFilter.ToLower() == "today")
+            {
+                filteredTasks = filteredTasks.Where(t => t.CreatedDateTime.Date == DateTime.Today);
+            }
 
             StringBuilder fileContent = new StringBuilder();
             foreach (var task in filteredTasks)
             {
-                fileContent.AppendLine($"Name: {task.Name}, Status: {task.GetStatus()}, Created At: {task.CreatedAt}");
+                fileContent.AppendLine($"Name: {task.Name}, Status: {task.GetStatus()}, Created At: {task.GetFormattedCreatedAt()}");
             }
 
             byte[] fileBytes = Encoding.UTF8.GetBytes(fileContent.ToString());
-            string fileName = $"tasks_{status}.txt";
+            string fileName = $"tasks_{status}_{timeFilter}.txt";
             string contentType = "text/plain";
 
             return File(fileBytes, contentType, fileName);

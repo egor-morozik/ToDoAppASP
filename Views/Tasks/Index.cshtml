@@ -1,4 +1,4 @@
-@model IEnumerable<ToDoApp.Models.TaskItem>
+@model ToDoApp.ViewModels.IndexViewModel
 
 @{
     ViewBag.Title = "Task List";
@@ -6,18 +6,26 @@
 
 <h3>Task List</h3>
 <ul>
-    @foreach (var task in Model)
+    @foreach (var task in Model.Tasks)
     {
-        <li>@task.Name (@task.GetStatus()), Created At: @task.CreatedAt</li>
+        <li>@task.Name (@task.GetStatus()), Created At: @task.GetFormattedCreatedAt()</li>
     }
 </ul>
 
 <h3>Filter Tasks</h3>
 <form method="get" action="/Tasks/Index">
+    <label>Status:</label>
     <select name="status">
-        <option value="all" selected="@(ViewBag.Status == "all" ? "selected" : null)">All</option>
-        <option value="completed" selected="@(ViewBag.Status == "completed" ? "selected" : null)">Completed</option>
-        <option value="notcompleted" selected="@(ViewBag.Status == "notcompleted" ? "selected" : null)">Not Completed</option>
+        <option value="all" selected="@(Model.Status == "all" ? "selected" : null)">All</option>
+        <option value="completed" selected="@(Model.Status == "completed" ? "selected" : null)">Completed</option>
+        <option value="notcompleted" selected="@(Model.Status == "notcompleted" ? "selected" : null)">Not Completed</option>
+    </select>
+    <label>Time:</label>
+    <select name="timeFilter">
+        @foreach (var filter in Model.TimeFilters)
+        {
+            <option value="@filter.Id" selected="@(Model.TimeFilter == filter.Id ? "selected" : null)">@filter.Name</option>
+        }
     </select>
     <button type="submit">Apply</button>
 </form>
@@ -46,9 +54,15 @@
 <h3>Download Tasks</h3>
 <form method="get" action="/Tasks/DownloadTasks">
     <select name="status">
-        <option value="all" selected="@(ViewBag.Status == "all" ? "selected" : null)">All</option>
-        <option value="completed" selected="@(ViewBag.Status == "completed" ? "selected" : null)">Completed</option>
-        <option value="notcompleted" selected="@(ViewBag.Status == "notcompleted" ? "selected" : null)">Not Completed</option>
+        <option value="all" selected="@(Model.Status == "all" ? "selected" : null)">All</option>
+        <option value="completed" selected="@(Model.Status == "completed" ? "selected" : null)">Completed</option>
+        <option value="notcompleted" selected="@(Model.Status == "notcompleted" ? "selected" : null)">Not Completed</option>
+    </select>
+    <select name="timeFilter">
+        @foreach (var filter in Model.TimeFilters)
+        {
+            <option value="@filter.Id" selected="@(Model.TimeFilter == filter.Id ? "selected" : null)">@filter.Name</option>
+        }
     </select>
     <button type="submit">Download</button>
 </form>
