@@ -1,10 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Text;
 using System.Text.Json;
+using ToDoApp.Models;
 
 namespace ToDoApp.Controllers
 {
-    public record TaskItem(string Name, bool IsCompleted, string CreatedAt);
     public record Error(string Message);
 
     public class TasksController : LogBaseController
@@ -32,9 +32,8 @@ namespace ToDoApp.Controllers
                 _ => _tasks 
             };
 
-            ViewData["Tasks"] = filteredTasks;
-            ViewData["Status"] = status;
-            return View("Index");
+            ViewBag.Status = status;
+            return View("Index", filteredTasks);
         }
 
         [HttpPost]
@@ -99,13 +98,13 @@ namespace ToDoApp.Controllers
             {
                 "completed" => _tasks.Where(t => t.IsCompleted).ToList(),
                 "notcompleted" => _tasks.Where(t => !t.IsCompleted).ToList(),
-                _ => _tasks
+                _ => _tasks 
             };
 
             StringBuilder fileContent = new StringBuilder();
             foreach (var task in filteredTasks)
             {
-                fileContent.AppendLine($"Name: {task.Name}, Status: {(task.IsCompleted ? "Completed" : "Not Completed")}, Created At: {task.CreatedAt}");
+                fileContent.AppendLine($"Name: {task.Name}, Status: {task.GetStatus()}, Created At: {task.CreatedAt}");
             }
 
             byte[] fileBytes = Encoding.UTF8.GetBytes(fileContent.ToString());

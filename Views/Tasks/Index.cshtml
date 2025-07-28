@@ -1,4 +1,4 @@
-@using ToDoApp.Controllers
+@model IEnumerable<ToDoApp.Models.TaskItem>
 
 @{
     ViewBag.Title = "Task List";
@@ -6,25 +6,18 @@
 
 <h3>Task List</h3>
 <ul>
-    @if (ViewData["Tasks"] is List<TaskItem> tasks && tasks != null)
+    @foreach (var task in Model)
     {
-        foreach (var task in tasks)
-        {
-            <li>@task.Name (@(task.IsCompleted ? "Completed" : "Not Completed")), Created At: @task.CreatedAt</li>
-        }
-    }
-    else
-    {
-        <li>No tasks found.</li>
+        <li>@task.Name (@task.GetStatus()), Created At: @task.CreatedAt</li>
     }
 </ul>
 
 <h3>Filter Tasks</h3>
 <form method="get" action="/Tasks/Index">
     <select name="status">
-        <option value="all" selected="@(ViewData["Status"]?.ToString() == "all" ? "selected" : null)">All</option>
-        <option value="completed" selected="@(ViewData["Status"]?.ToString() == "completed" ? "selected" : null)">Completed</option>
-        <option value="notcompleted" selected="@(ViewData["Status"]?.ToString() == "notcompleted" ? "selected" : null)">Not Completed</option>
+        <option value="all" selected="@(ViewBag.Status == "all" ? "selected" : null)">All</option>
+        <option value="completed" selected="@(ViewBag.Status == "completed" ? "selected" : null)">Completed</option>
+        <option value="notcompleted" selected="@(ViewBag.Status == "notcompleted" ? "selected" : null)">Not Completed</option>
     </select>
     <button type="submit">Apply</button>
 </form>
@@ -53,9 +46,9 @@
 <h3>Download Tasks</h3>
 <form method="get" action="/Tasks/DownloadTasks">
     <select name="status">
-        <option value="all" selected="@(ViewData["Status"]?.ToString() == "all" ? "selected" : null)">All</option>
-        <option value="completed" selected="@(ViewData["Status"]?.ToString() == "completed" ? "selected" : null)">Completed</option>
-        <option value="notcompleted" selected="@(ViewData["Status"]?.ToString() == "notcompleted" ? "selected" : null)">Not Completed</option>
+        <option value="all" selected="@(ViewBag.Status == "all" ? "selected" : null)">All</option>
+        <option value="completed" selected="@(ViewBag.Status == "completed" ? "selected" : null)">Completed</option>
+        <option value="notcompleted" selected="@(ViewBag.Status == "notcompleted" ? "selected" : null)">Not Completed</option>
     </select>
     <button type="submit">Download</button>
 </form>
