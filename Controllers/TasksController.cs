@@ -3,6 +3,7 @@ using System.Text;
 using System.Text.Json;
 using ToDoApp.Models;
 using ToDoApp.ViewModels;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace ToDoApp.Controllers
 {
@@ -44,12 +45,28 @@ namespace ToDoApp.Controllers
                 new TimeFilterModel("today", "Today")
             };
 
+            var statusOptions = new List<SelectListItem>
+            {
+                new SelectListItem { Value = "all", Text = "All", Selected = status == "all" },
+                new SelectListItem { Value = "completed", Text = "Completed", Selected = status == "completed" },
+                new SelectListItem { Value = "notcompleted", Text = "Not Completed", Selected = status == "notcompleted" }
+            };
+
+            var timeFilterOptions = timeFilters.Select(f => new SelectListItem
+            {
+                Value = f.Id,
+                Text = f.Name,
+                Selected = timeFilter == f.Id
+            });
+
             var viewModel = new IndexViewModel
             {
                 Tasks = filteredTasks,
                 TimeFilters = timeFilters,
                 Status = status,
-                TimeFilter = timeFilter
+                TimeFilter = timeFilter,
+                StatusOptions = statusOptions,
+                TimeFilterOptions = timeFilterOptions
             };
 
             return View("Index", viewModel);
@@ -72,7 +89,7 @@ namespace ToDoApp.Controllers
         [ActionName("Add")]
         public IActionResult AddTask(TaskItem task)
         {
-            string? taskName = Request.Form["task.Name"];
+            string ?taskName = Request.Form["task.Name"];
             bool isCompleted = Request.Form["task.IsCompleted"] == "true";
 
             if (!string.IsNullOrEmpty(task.Name) || !string.IsNullOrEmpty(taskName))

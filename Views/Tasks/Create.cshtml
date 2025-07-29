@@ -1,25 +1,31 @@
+@model ToDoApp.Models.TaskItem
+
 @{
     ViewBag.Title = "Create Task";
 }
 
-<form method="post">
+@using (Html.BeginForm("Create", "Tasks", FormMethod.Post))
+{
     <p>
-        <label>Task Name</label><br />
-        <input type="text" name="Name" />
+        @Html.LabelFor(m => m.Name, "Task Name")<br />
+        @Html.TextBoxFor(m => m.Name)
     </p>
     <p>
-        <label>Completed</label><br />
-        <input type="checkbox" name="IsCompleted" value="true" />
+        @Html.LabelFor(m => m.IsCompleted, "Completed")<br />
+        @Html.CheckBoxFor(m => m.IsCompleted)
     </p>
     <p>
-        <label>Date</label><br />
-        <input type="date" name="Date" />
+        @Html.LabelFor(m => m.CreatedDateTime, "Date")<br />
+        @Html.TextBox("Date", null, new { type = "date" })
     </p>
     <p>
-        <label>Time</label><br />
-        <input type="time" name="Time" />
+        @Html.LabelFor(m => m.CreatedDateTime, "Time")<br />
+        @Html.TextBox("Time", null, new { type = "time" })
+    </p>
+    <p>
+        @Html.HiddenFor(m => m.CreatedDateTime)
     </p>
     <p>
         <input type="submit" value="Submit" />
     </p>
-</form>
+}

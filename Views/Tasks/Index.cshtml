@@ -17,22 +17,14 @@
 <a href="/Tasks/Create">Add New Task</a>
 
 <h3>Filter Tasks</h3>
-<form method="get" action="/Tasks/Index">
+@using (Html.BeginForm("Index", "Tasks", FormMethod.Get))
+{
     <label>Status:</label>
-    <select name="status">
-        <option value="all" selected="@(Model.Status == "all" ? "selected" : null)">All</option>
-        <option value="completed" selected="@(Model.Status == "completed" ? "selected" : null)">Completed</option>
-        <option value="notcompleted" selected="@(Model.Status == "notcompleted" ? "selected" : null)">Not Completed</option>
-    </select>
+    @Html.DropDownListFor(m => m.Status, Model.StatusOptions)
     <label>Time:</label>
-    <select name="timeFilter">
-        @foreach (var filter in Model.TimeFilters)
-        {
-            <option value="@filter.Id" selected="@(Model.TimeFilter == filter.Id ? "selected" : null)">@filter.Name</option>
-        }
-    </select>
+    @Html.DropDownListFor(m => m.TimeFilter, Model.TimeFilterOptions)
     <button type="submit">Apply</button>
-</form>
+}
 
 <h3>Add Task (Legacy)</h3>
 <form method="post" action="/Tasks/Add">
@@ -56,20 +48,12 @@
 </form>
 
 <h3>Download Tasks</h3>
-<form method="get" action="/Tasks/DownloadTasks">
-    <select name="status">
-        <option value="all" selected="@(Model.Status == "all" ? "selected" : null)">All</option>
-        <option value="completed" selected="@(Model.Status == "completed" ? "selected" : null)">Completed</option>
-        <option value="notcompleted" selected="@(Model.Status == "notcompleted" ? "selected" : null)">Not Completed</option>
-    </select>
-    <select name="timeFilter">
-        @foreach (var filter in Model.TimeFilters)
-        {
-            <option value="@filter.Id" selected="@(Model.TimeFilter == filter.Id ? "selected" : null)">@filter.Name</option>
-        }
-    </select>
+@using (Html.BeginForm("DownloadTasks", "Tasks", FormMethod.Get))
+{
+    @Html.DropDownListFor(m => m.Status, Model.StatusOptions)
+    @Html.DropDownListFor(m => m.TimeFilter, Model.TimeFilterOptions)
     <button type="submit">Download</button>
-</form>
+}
 
 @section Footer {
     Copyright © ToDoApp, @DateTime.Now.Year. All rights reserved
