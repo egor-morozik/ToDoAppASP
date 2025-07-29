@@ -1,7 +1,12 @@
+using ToDoApp.Infrastructure;
+
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllersWithViews(); 
-builder.Services.AddTransient<ITimeService, SimpleTimeService>(); 
+builder.Services.AddControllersWithViews(opts =>
+{
+    opts.ModelBinderProviders.Insert(0, new TaskItemModelBinderProvider());
+});
+builder.Services.AddTransient<ITimeService, SimpleTimeService>();
 
 var app = builder.Build();
 

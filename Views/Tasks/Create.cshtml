@@ -1,0 +1,25 @@
+@{
+    ViewBag.Title = "Create Task";
+}
+
+<form method="post">
+    <p>
+        <label>Task Name</label><br />
+        <input type="text" name="Name" />
+    </p>
+    <p>
+        <label>Completed</label><br />
+        <input type="checkbox" name="IsCompleted" value="true" />
+    </p>
+    <p>
+        <label>Date</label><br />
+        <input type="date" name="Date" />
+    </p>
+    <p>
+        <label>Time</label><br />
+        <input type="time" name="Time" />
+    </p>
+    <p>
+        <input type="submit" value="Submit" />
+    </p>
+</form>

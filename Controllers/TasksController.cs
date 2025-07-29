@@ -55,11 +55,24 @@ namespace ToDoApp.Controllers
             return View("Index", viewModel);
         }
 
+        [HttpGet]
+        public IActionResult Create()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult Create(TaskItem task)
+        {
+            _tasks.Add(task);
+            return RedirectToAction("Index", new { status = task.IsCompleted ? "completed" : "notcompleted", timeFilter = "today" });
+        }
+
         [HttpPost]
         [ActionName("Add")]
         public IActionResult AddTask(TaskItem task)
         {
-            string ?taskName = Request.Form["task.Name"];
+            string? taskName = Request.Form["task.Name"];
             bool isCompleted = Request.Form["task.IsCompleted"] == "true";
 
             if (!string.IsNullOrEmpty(task.Name) || !string.IsNullOrEmpty(taskName))
