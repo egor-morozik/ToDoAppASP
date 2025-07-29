@@ -1,16 +1,17 @@
 @model ToDoApp.ViewModels.IndexViewModel
+@using ToDoApp.Infrastructure
 
 @{
     ViewBag.Title = "Task List";
 }
 
+<style>
+    .task-list { list-style-type: square; }
+    .task-list li { margin: 5px 0; }
+</style>
+
 <h3>Task List</h3>
-<ul>
-    @foreach (var task in Model.Tasks)
-    {
-        <li>@task.Name (@task.GetStatus()), Created At: @task.GetFormattedCreatedAt()</li>
-    }
-</ul>
+@Html.CreateTaskList(Model.Tasks)
 
 <h3>Create New Task</h3>
 <a href="/Tasks/Create">Add New Task</a>
