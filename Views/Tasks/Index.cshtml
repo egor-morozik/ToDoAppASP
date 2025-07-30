@@ -8,10 +8,18 @@
 <style>
     .task-list { list-style-type: square; }
     .task-list li { margin: 5px 0; }
+    .link { color: #0066cc; text-decoration: underline; }
 </style>
 
 <h3>Task List</h3>
 @Html.CreateTaskList(Model.Tasks)
+
+@foreach (var task in Model.Tasks)
+{
+    <div>
+        @Html.ActionLink("Delete", "Delete", "Tasks", new { id = task.GetHashCode() }, new { @class = "link" })
+    </div>
+}
 
 <h3>Create New Task</h3>
 @Html.ActionLink("Add New Task", "Create", "Tasks", null, new { @class = "link" })

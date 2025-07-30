@@ -167,5 +167,33 @@ namespace ToDoApp.Controllers
 
             return File(fileBytes, contentType, fileName);
         }
+
+        [HttpGet]
+        public IActionResult Delete(int? id)
+        {
+            if (id == null)
+            {
+                return BadRequest(new Error("Task ID is required"));
+            }
+
+            var task = _tasks.FirstOrDefault(t => t.GetHashCode() == id); // Используем GetHashCode как временный id
+            if (task == null)
+            {
+                return NotFound(new Error($"Task with ID {id} not found"));
+            }
+
+            return View("Delete", task);
+        }
+
+        [HttpPost]
+        public IActionResult DeleteConfirmed(int id)
+        {
+            var task = _tasks.FirstOrDefault(t => t.GetHashCode() == id);
+            if (task != null)
+            {
+                _tasks.Remove(task);
+            }
+            return RedirectToAction("Index");
+        }
     }
 }

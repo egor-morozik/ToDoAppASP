@@ -1,0 +1,17 @@
+@model ToDoApp.Models.TaskItem
+
+@{
+    ViewBag.Title = "Delete Task";
+}
+
+<h3>Are you sure you want to delete this task?</h3>
+<p>Name: @Model.Name</p>
+<p>Status: @Model.GetStatus()</p>
+<p>Created At: @Model.GetFormattedCreatedAt()</p>
+
+@using (Html.BeginForm("DeleteConfirmed", "Tasks", FormMethod.Post))
+{
+    @Html.HiddenFor(m => m.GetHashCode())
+    <input type="submit" value="Yes, Delete" />
+    @Html.ActionLink("No, Cancel", "Index", "Tasks", null, new { @class = "link" })
+}
