@@ -11,6 +11,11 @@ builder.Services.AddTransient<ITimeService, SimpleTimeService>();
 var app = builder.Build();
 
 app.MapControllerRoute(
+    name: "tasks",
+    pattern: "Tasks/{action}/{id?}",
+    defaults: new { controller = "Tasks" });
+
+app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 

@@ -14,7 +14,7 @@
 @Html.CreateTaskList(Model.Tasks)
 
 <h3>Create New Task</h3>
-<a href="/Tasks/Create">Add New Task</a>
+@Html.ActionLink("Add New Task", "Create", "Tasks", null, new { @class = "link" })
 
 <h3>Filter Tasks</h3>
 @using (Html.BeginForm("Index", "Tasks", FormMethod.Get))
@@ -27,25 +27,23 @@
 }
 
 <h3>Add Task (Legacy)</h3>
-<form method="post" action="/Tasks/Add">
+@using (Html.BeginForm("Add", "Tasks", FormMethod.Post))
+{
     <label>Task Name:</label><br />
-    <input name="task.Name" placeholder="Enter task name" /><br />
+    @Html.TextBox("task.Name", null, new { placeholder = "Enter task name" })<br />
     <label>Completed:</label><br />
-    <input type="checkbox" name="task.IsCompleted" value="true" /><br />
+    @Html.CheckBox("task.IsCompleted", false)<br />
     <button type="submit">Add</button>
-</form>
+}
 
 <h3>Get Tasks (JSON)</h3>
-<a href="/Tasks/GetTasks">View tasks in JSON</a>
+@Html.ActionLink("View tasks in JSON", "GetTasks", "Tasks", new { isAuthorized = true }, new { @class = "link" })
 
 <h3>Redirect Demo</h3>
-<a href="/Tasks/RedirectToInfo">Go to Info</a>
+@Html.ActionLink("Go to Info", "RedirectToInfo", "Tasks", null, new { @class = "link" })
 
 <h3>Find Task</h3>
-<form method="get" action="/Tasks/FindTask">
-    <input name="name" placeholder="Enter task name" /><br />
-    <button type="submit">Find</button>
-</form>
+@Html.ActionLink("Find Task", "FindTask", "Tasks", new { name = "Enter task name" }, new { @class = "link", id = "find-task" })
 
 <h3>Download Tasks</h3>
 @using (Html.BeginForm("DownloadTasks", "Tasks", FormMethod.Get))
