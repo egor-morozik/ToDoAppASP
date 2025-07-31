@@ -1,11 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
+using MvcApp;
 
 namespace ToDoApp.Controllers
 {
     public class TasksController : Controller
     {
         [HttpGet]
-        public async Task Index()
+        public IActionResult Index()
         {
             string content = @"
             <h2>Add New Task</h2>
@@ -20,15 +21,13 @@ namespace ToDoApp.Controllers
                 <input type='checkbox' name='IsActive' value='true' checked /><br/>
                 <input type='submit' value='Add Task' />
             </form>";
-            Response.ContentType = "text/html;charset=utf-8";
-            await Response.WriteAsync(content);
+            return new HtmlResult(content);
         }
 
         [HttpPost]
-        public async Task Index(TaskItem task)
+        public IActionResult Index(TaskItem task)
         {
-            Response.ContentType = "text/html;charset=utf-8";
-            await Response.WriteAsync(@$"<h2>Current task: {task.Description}</h2>
+            return new HtmlResult(@$"<h2>Current task: {task.Description}</h2>
                                         <h2>Created at: {task.StartAt}</h2>
                                         <h2>End at: {task.EndAt}</h2>
                                         <h2>Is active: {task.IsActive}</h2>");

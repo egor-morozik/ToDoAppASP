@@ -11,7 +11,7 @@ namespace MvcApp
             string fullHtmlCode = @$"<!DOCTYPE html>
             <html>
                 <head>
-                    <title>METANIT.COM</title>
+                    <title>MCVTODO</title>
                     <meta charset=utf-8 />
                 </head>
                 <body>{htmlCode}</body>
