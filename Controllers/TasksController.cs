@@ -5,16 +5,18 @@ namespace ToDoApp.Controllers
     public class TasksController : Controller
     {
         [HttpGet]
-        public string Index()
+        public async Task Index()
         {
-            return "Task list : buy products, write letter to friend";
+            Response.ContentType = "text/html;charset=utf-8";
+            await Response.WriteAsync("<h2>Task list : buy products, write letter to friend</h2>");
         }
 
         [HttpPost]
         [ActionName("Add")]
-        public string AddTask()
+        public async Task AddTask()
         {
-            return "Your task has been added";
+            Response.ContentType = "text/html;charset=utf-8";
+            await Response.WriteAsync("<h2>Your task has been added</h2>");
         }
     }
 }
