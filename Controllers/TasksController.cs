@@ -10,7 +10,7 @@ namespace ToDoApp.Controllers
         {
             string content = @"
             <h2>Add New Task</h2>
-            <form method='post'>
+            <form method='post' action='/Tasks/IndexJson'>
                 <label>Description:</label><br/>
                 <input name='Description' required /><br/>
                 <label>Start At:</label><br/>
@@ -31,6 +31,12 @@ namespace ToDoApp.Controllers
                                         <h2>Created at: {task.StartAt}</h2>
                                         <h2>End at: {task.EndAt}</h2>
                                         <h2>Is active: {task.IsActive}</h2>");
+        }
+
+                [HttpPost]
+        public IActionResult IndexJson(TaskItem task)
+        {
+            return Json(task);
         }
 
         [HttpPost]
