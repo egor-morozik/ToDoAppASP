@@ -8,19 +8,22 @@ namespace ToDoApp.Controllers
         [HttpGet]
         public IActionResult Index()
         {
-            string content = @"
-            <h2>Add New Task</h2>
-            <form method='post' action='/Tasks/IndexJson'>
-                <label>Description:</label><br/>
-                <input name='Description' required /><br/>
-                <label>Start At:</label><br/>
-                <input type='datetime-local' name='StartAt' required /><br/>
-                <label>End At:</label><br/>
-                <input type='datetime-local' name='EndAt' required /><br/>
-                <label>Is Active:</label><br/>
-                <input type='checkbox' name='IsActive' value='true' checked /><br/>
-                <input type='submit' value='Add Task' />
-            </form>";
+    string content = @"
+                <h2>Add New Task</h2>
+                <form method='post'>
+                    <label>Description:</label><br/>
+                    <input name='Description' required /><br/>
+                    <label>Start At:</label><br/>
+                    <input type='datetime-local' name='StartAt' required /><br/>
+                    <label>End At:</label><br/>
+                    <input type='datetime-local' name='EndAt' required /><br/>
+                    <label>Is Active:</label><br/>
+                    <input type='checkbox' name='IsActive' value='true' checked /><br/>
+                    
+                    <button type='submit' formaction='Index'>Submit as HTML</button>
+                    
+                    <button type='submit' formaction='IndexJson'>Submit as JSON</button>
+                </form>";
             return new HtmlResult(content);
         }
 
@@ -33,7 +36,7 @@ namespace ToDoApp.Controllers
                                         <h2>Is active: {task.IsActive}</h2>");
         }
 
-                [HttpPost]
+        [HttpPost]
         public IActionResult IndexJson(TaskItem task)
         {
             return Json(task);
